@@ -63,15 +63,20 @@ export function UserForm({
     setTouched(allTouched)
 
     if (validation.success) {
-      const userData = {
-        ...values,
-        ...(initialUser?.id && { id: initialUser.id }),
-      } as User
-      await onSubmit(userData)
-      if (!initialUser) {
-        setValues({})
-        setTouched({})
-        setErrors({})
+      try {
+        const userData = {
+          ...values,
+          ...(initialUser?.id && { id: initialUser.id }),
+        } as User
+        await onSubmit(userData)
+        if (!initialUser) {
+          setValues({})
+          setTouched({})
+          setErrors({})
+        }
+      } catch (error) {
+        // Error is handled by parent component
+        console.error("Form submission error:", error)
       }
     }
   }

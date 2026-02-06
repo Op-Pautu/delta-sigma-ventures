@@ -14,7 +14,10 @@ export const userSchema = z.object({
   phoneNumber: z
     .string()
     .min(1, "Phone Number is required")
-    .regex(/^[\d\s\-+()]+$/, "Phone Number format is invalid"),
+    .regex(
+      /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
+      "Phone Number format is invalid",
+    ),
   email: z
     .string()
     .min(1, "Email Address is required")

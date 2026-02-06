@@ -51,9 +51,17 @@ function App() {
         await api.updateUser(user.id, user)
         await fetchUsers()
         setEditingUser(null)
+      } else {
+        setError("Cannot update user without ID")
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update user")
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update user"
+      setError(errorMessage)
+      // If user doesn't exist anymore, clear editing state
+      if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
+        setEditingUser(null)
+      }
       throw err
     } finally {
       setLoading(false)
@@ -65,6 +73,10 @@ function App() {
       setLoading(true)
       setError(null)
       await api.deleteUser(id)
+      // Clear editing state if we're deleting the user being edited
+      if (editingUser?.id === id) {
+        setEditingUser(null)
+      }
       await fetchUsers()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete user")
