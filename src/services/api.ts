@@ -4,6 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001"
 
 export interface User extends UserFormData {
   id?: string
+  [key: string]: string | undefined
 }
 
 export const api = {
