@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { UserForm } from "./components/UserForm"
 import { UserList } from "./components/UserList"
 import { api, type User } from "./services/api"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 function App() {
   const [users, setUsers] = useState<User[]>([])
@@ -81,20 +83,21 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="max-w-7xl mx-auto px-4">
         <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-4xl font-bold">User Management</h1>
+          <p className="text-muted-foreground mt-2">
             Simple CRUD application with extensible schema
           </p>
         </header>
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            <strong className="font-bold">Error: </strong>
-            <span>{error}</span>
-          </div>
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         <main>

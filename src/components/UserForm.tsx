@@ -2,6 +2,10 @@ import { useState } from "react"
 import { USER_FIELDS } from "../config/fieldSchema"
 import { validateUserData } from "../utils/validation"
 import { type User } from "../services/api"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface UserFormProps {
   onSubmit: (user: User) => Promise<void>
@@ -80,67 +84,60 @@ export function UserForm({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white p-6 rounded-lg shadow-md mb-8"
-    >
-      <h2 className="text-2xl font-bold mb-6">
-        {initialUser ? "Edit User" : "Add New User"}
-      </h2>
+    <Card className="mb-8">
+      <CardHeader>
+        <CardTitle>{initialUser ? "Edit User" : "Add New User"}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {USER_FIELDS.map((field) => (
+              <div key={field.name} className="space-y-2">
+                <Label htmlFor={field.name}>
+                  {field.label}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  type={field.type}
+                  value={values[field.name] || ""}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
+                  onBlur={() => handleBlur(field.name)}
+                  placeholder={field.placeholder}
+                  disabled={loading}
+                  className={
+                    touched[field.name] && errors[field.name]
+                      ? "border-destructive"
+                      : ""
+                  }
+                />
+                {touched[field.name] && errors[field.name] && (
+                  <p className="text-sm text-destructive">
+                    {errors[field.name]}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {USER_FIELDS.map((field) => (
-          <div key={field.name} className="flex flex-col">
-            <label
-              htmlFor={field.name}
-              className="mb-2 font-medium text-gray-700"
-            >
-              {field.label}
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              id={field.name}
-              name={field.name}
-              type={field.type}
-              value={values[field.name] || ""}
-              onChange={(e) => handleChange(field.name, e.target.value)}
-              onBlur={() => handleBlur(field.name)}
-              placeholder={field.placeholder}
-              disabled={loading}
-              className={`px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                touched[field.name] && errors[field.name]
-                  ? "border-red-500"
-                  : "border-gray-300"
-              }`}
-            />
-            {touched[field.name] && errors[field.name] && (
-              <span className="text-red-500 text-sm mt-1">
-                {errors[field.name]}
-              </span>
+          <div className="mt-6 flex gap-4">
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving..." : initialUser ? "Update User" : "Add User"}
+            </Button>
+            {initialUser && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancelClick}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
             )}
           </div>
-        ))}
-      </div>
-
-      <div className="mt-6 flex gap-4">
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? "Saving..." : initialUser ? "Update User" : "Add User"}
-        </button>
-        {initialUser && (
-          <button
-            type="button"
-            onClick={handleCancelClick}
-            disabled={loading}
-            className="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-          >
-            Cancel
-          </button>
-        )}
-      </div>
-    </form>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

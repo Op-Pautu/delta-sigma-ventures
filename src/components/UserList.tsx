@@ -1,6 +1,26 @@
 import { useState } from "react"
 import { USER_FIELDS } from "../config/fieldSchema"
 import { type User } from "../services/api"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface UserListProps {
   users: User[]
@@ -14,102 +34,99 @@ export function UserList({ users, onEdit, onDelete, loading }: UserListProps) {
 
   if (loading) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      </div>
+      <Card>
+        <CardContent className="py-8">
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
     )
   }
 
   if (users.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <p className="text-center text-gray-500 py-8">
-          No users found. Add your first user above!
-        </p>
-      </div>
+      <Card>
+        <CardContent className="py-8">
+          <p className="text-center text-muted-foreground">
+            No users found. Add your first user above!
+          </p>
+        </CardContent>
+      </Card>
     )
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              {USER_FIELDS.map((field) => (
-                <th
-                  key={field.name}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  {field.label}
-                </th>
-              ))}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Users</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
                 {USER_FIELDS.map((field) => (
-                  <td
-                    key={field.name}
-                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
-                  >
-                    {user[field.name]}
-                  </td>
+                  <TableHead key={field.name}>{field.label}</TableHead>
                 ))}
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => onEdit(user)}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => setDeleteId(user.id!)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id}>
+                  {USER_FIELDS.map((field) => (
+                    <TableCell key={field.name}>{user[field.name]}</TableCell>
+                  ))}
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onEdit(user)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setDeleteId(user.id!)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
-      {deleteId && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md">
-            <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
-            <p className="text-gray-600 mb-6">
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+            <AlertDialogDescription>
               Are you sure you want to delete this user? This action cannot be
               undone.
-            </p>
-            <div className="flex gap-4 justify-end">
-              <button
-                onClick={() => setDeleteId(null)}
-                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteId) {
                   onDelete(deleteId)
                   setDeleteId(null)
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
