@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Users } from "lucide-react"
 
 interface UserListProps {
   users: User[]
@@ -47,10 +48,19 @@ export function UserList({ users, onEdit, onDelete, loading }: UserListProps) {
   if (users.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8">
-          <p className="text-center text-muted-foreground">
-            No users found. Add your first user above!
-          </p>
+        <CardContent className="py-16">
+          <div className="text-center">
+            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <Users className="h-12 w-12 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No users yet
+            </h3>
+            <p className="text-muted-foreground max-w-sm mx-auto">
+              Get started by adding your first user using the form above. All
+              users will appear here.
+            </p>
+          </div>
         </CardContent>
       </Card>
     )
@@ -60,7 +70,12 @@ export function UserList({ users, onEdit, onDelete, loading }: UserListProps) {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Users</CardTitle>
+            <div className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+              {users.length} {users.length === 1 ? "user" : "users"}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
