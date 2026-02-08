@@ -3,7 +3,9 @@ import { UserForm } from "./components/UserForm"
 import { UserList } from "./components/UserList"
 import { api, type User } from "./services/api"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle } from "lucide-react"
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
+import { AlertCircle, Users } from "lucide-react"
 
 function App() {
   const [users, setUsers] = useState<User[]>([])
@@ -23,7 +25,12 @@ function App() {
       const data = await api.getUsers()
       setUsers(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch users")
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to fetch users"
+      setError(errorMsg)
+      toast.error("Failed to load users", {
+        description: errorMsg,
+      })
     } finally {
       setLoading(false)
     }
@@ -35,8 +42,16 @@ function App() {
       setError(null)
       await api.createUser(user)
       await fetchUsers()
+      toast.success("User created successfully", {
+        description: `${user.firstName} ${user.lastName} has been added.`,
+      })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create user")
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to create user"
+      setError(errorMsg)
+      toast.error("Failed to create user", {
+        description: errorMsg,
+      })
       throw err
     } finally {
       setLoading(false)
@@ -51,13 +66,22 @@ function App() {
         await api.updateUser(user.id, user)
         await fetchUsers()
         setEditingUser(null)
+        toast.success("User updated successfully", {
+          description: `${user.firstName} ${user.lastName} has been updated.`,
+        })
       } else {
         setError("Cannot update user without ID")
+        toast.error("Update failed", {
+          description: "User ID is missing",
+        })
       }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to update user"
       setError(errorMessage)
+      toast.error("Failed to update user", {
+        description: errorMessage,
+      })
       // If user doesn't exist anymore, clear editing state
       if (errorMessage.includes("404") || errorMessage.includes("Not Found")) {
         setEditingUser(null)
@@ -78,8 +102,16 @@ function App() {
         setEditingUser(null)
       }
       await fetchUsers()
+      toast.success("User deleted successfully", {
+        description: "The user has been removed from the system.",
+      })
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete user")
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to delete user"
+      setError(errorMsg)
+      toast.error("Failed to delete user", {
+        description: errorMsg,
+      })
     } finally {
       setLoading(false)
     }
@@ -95,24 +127,38 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold">User Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Simple CRUD application with extensible schema
-          </p>
-        </header>
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
+      <Toaster position="top-right" richColors />
 
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-600 rounded-lg">
+              <Users className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                User Management
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Manage your users with ease • Schema-driven CRUD application
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {error && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
 
-        <main>
+        <main className="space-y-8">
           <UserForm
             key={editingUser?.id || "new"}
             onSubmit={editingUser ? handleUpdate : handleCreate}
@@ -129,6 +175,16 @@ function App() {
           />
         </main>
       </div>
+
+      {/* Footer */}
+      <footer className="mt-16 py-6 border-t border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-600">
+          <p>Built with React, TypeScript, Tailwind CSS, and shadcn/ui</p>
+          <p className="mt-1">
+            Schema-driven architecture for easy extensibility
+          </p>
+        </div>
+      </footer>
     </div>
   )
 }
